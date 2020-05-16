@@ -37,6 +37,46 @@ def usage():
     print("bhnet.py -t 192.168.0.1 -p 5555 -l -e=\"cat /etc/passwd\"")
     print("echo 'ABCDEFGHI' | ./bhnet.py -t 192.168.11.12 -p 135")
     sys.exit(0)
+
+def client_sender(buffer):
+
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    try:
+        # connect to our target
+        client.connect((target, port))
+
+        if len(buffer):
+            client.send(buffer)
+
+        while True:
+
+            # Wait for data back
+            recv_len = 1
+            response = ""
+
+            while recv_len:
+                data = client.recv(4096)
+                recv_len = len(data)
+                response += data
+                
+                if recv_len < 4096:
+                    break
+            
+            print(response)
+
+            # Wait for more input
+            buffer = input("")
+            buffer += "\n"
+
+            # Send
+            client.send(buffer)
+    
+    except:
+        print("[*] Exception! Exiting")
+
+        # tear down connection
+        client.close()
     
 def main():
     global listen
